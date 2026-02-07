@@ -161,3 +161,4 @@
 /Users/yuval/smart-office/IdentityService/bin/Debug/net10.0/runtimes/win-arm64/native/Microsoft.Data.SqlClient.SNI.dll
 /Users/yuval/smart-office/IdentityService/bin/Debug/net10.0/runtimes/win-x64/native/Microsoft.Data.SqlClient.SNI.dll
 /Users/yuval/smart-office/IdentityService/bin/Debug/net10.0/runtimes/win-x86/native/Microsoft.Data.SqlClient.SNI.dll
+/Users/yuval/smart-office/IdentityService/obj/Debug/net10.0/IdentityService.sourcelink.json

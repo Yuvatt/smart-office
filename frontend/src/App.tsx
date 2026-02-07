@@ -22,7 +22,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'; // New Icon for Regis
 
 // --- Configuration ---
 const IDENTITY_URL = "http://localhost:5284/api/Auth"; 
-const RESOURCE_URL = "http://localhost:5018/api/assets"; 
+const RESOURCE_URL = "http://localhost:5018/api/assets";
 
 // --- Login / Register Component ---
 const Login = observer(() => {

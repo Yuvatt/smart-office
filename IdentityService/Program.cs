@@ -13,7 +13,8 @@ builder.Services.AddSwaggerGen();
 
 // --- 2. DATABASE CONNECTION (The missing part!) ---
 // This reads "DefaultConnection" from appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// במקום השורה הקיימת, נסה להזין ידנית לשנייה:
+var connectionString = "Server=localhost;Database=IdentityDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
 // Register the DbContext with SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>

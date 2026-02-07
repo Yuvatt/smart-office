@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # 1. SQL Server Container (IdentityService)
+  sql-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql-identity-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong!Pass123
+    ports:
+      - "1433:1433"
+
+  # 2. MongoDB Container (ResourceService)
+  mongo-db:
+    image: mongo:latest
+    container_name: mongo-resource-db
+    ports:
+      - "27017:27017"
+
+  # 3. Identity Service (.NET)
+  identity-service:
+    build:
+      context: ./IdentityService
+    container_name: identity-service
+    ports:
+      - "5284:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sql-db;Database=IdentityDb;User Id=sa;Password=YourStrong!Pass123;TrustServerCertificate=True;
+      - Jwt__Key=YourSuperSecretKeyHere1234567890!
+      - Jwt__Issuer=IdentityService
+      - Jwt__Audience=SmartOffice
+    depends_on:
+      - sql-db
+
+  # 4. Resource Service (.NET)
+  resource-service:
+    build:
+      context: ./ResourceService
+    container_name: resource-service
+    ports:
+      - "5018:8080"
+    environment:
+      - ConnectionStrings__MongoDb=mongodb://mongo-db:27017
+      - Jwt__Key=YourSuperSecretKeyHere1234567890!
+    depends_on:
+      - mongo-db
+
+  # 5. Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+    container_name: smart-office-ui
+    ports:
+      - "5173:5173"
+    depends_on:
+      - identity-service
+      - resource-service
