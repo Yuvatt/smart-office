@@ -1,78 +1,58 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using IdentityService.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using IdentityService.Data; // Ensure this matches your namespace for AppDbContext
+using IdentityService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Add Services to the container ---
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// --- 2. DATABASE CONNECTION (The missing part!) ---
-// This reads "DefaultConnection" from appsettings.json
-// במקום השורה הקיימת, נסה להזין ידנית לשנייה:
-var connectionString = "Server=localhost;Database=IdentityDb;Trusted_Connection=True;TrustServerCertificate=True;";
-
-// Register the DbContext with SQL Server
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
-// --- 3. CORS Configuration (Allow Frontend to connect) ---
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader());
-});
-
-// --- 4. JWT Authentication Configuration ---
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-    };
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .WithOrigins("http://localhost:5173", "http://localhost:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
 });
 
 var app = builder.Build();
 
-// --- 5. Configure the HTTP request pipeline ---
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.EnsureCreated();
+        Console.WriteLine(">>> Database created successfully!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($">>> Error creating database: {ex.Message}");
+    }
+}
+// ----------------------------------------------------
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll"); // Activate CORS
+// 
+app.UseCors("AllowAll");
 
-app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
-// Create Database if it doesn't exist (Auto-Migration)
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated();
-}
 
 app.Run();

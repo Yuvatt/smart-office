@@ -11,7 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        builder =>
+        {
+            builder
+                .WithOrigins("http://localhost:5173", "http://localhost:3000") // הוספנו את 3000
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
 });
 
 // Register the AssetService (Dependency Injection)
