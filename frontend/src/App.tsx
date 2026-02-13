@@ -6,8 +6,8 @@ import {
   Container, TextField, Button, Typography, Box, Paper, 
   Table, TableBody, TableCell, TableHead, TableRow, AppBar, Toolbar, 
   IconButton, Tooltip, Dialog, DialogTitle, 
-  DialogContent, DialogActions, Grid, Avatar, Link
-} from "@mui/material";
+  DialogContent, DialogActions, Grid, Avatar, Link, MenuItem 
+} from "@mui/material"; // Added MenuItem here
 
 // --- Icons ---
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -18,9 +18,10 @@ import ChairIcon from '@mui/icons-material/Chair';
 import KitchenIcon from '@mui/icons-material/Kitchen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit'; 
-import PersonAddIcon from '@mui/icons-material/PersonAdd'; // New Icon for Register
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 // --- Configuration ---
+// Ensure these match your Docker ports mapping
 const IDENTITY_URL = "http://localhost:5284/api/Auth"; 
 const RESOURCE_URL = "http://localhost:5018/api/assets";
 
@@ -28,7 +29,8 @@ const RESOURCE_URL = "http://localhost:5018/api/assets";
 const Login = observer(() => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState(""); // Optional: Add if your backend requires email
+  // New state for Role selection (Default: Member)
+  const [role, setRole] = useState("Member"); 
   
   // Toggle between Login and Register mode
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -37,18 +39,20 @@ const Login = observer(() => {
     try {
         if (isRegisterMode) {
             // --- REGISTER LOGIC ---
-            // Note: Ensure your IdentityService has an endpoint: [HttpPost("register")]
             await axios.post(`${IDENTITY_URL}/register`, { 
                 username, 
                 password,
-                email: email || "user@example.com" // Default email if not used
+                role 
             });
             alert("Registration successful! Now please sign in.");
-            setIsRegisterMode(false); // Switch back to login mode
+            setIsRegisterMode(false); 
         } else {
             // --- LOGIN LOGIC ---
             const response = await axios.post(`${IDENTITY_URL}/login`, { username, password });
-            authStore.login(response.data); 
+            
+            // FIX: Pass only the token string, not the whole object
+            // Note: If this fails, try 'response.data.Token' (capital T)
+            authStore.login(response.data.token || response.data.Token); 
         }
     } catch (error: any) {
       console.error(error);
@@ -72,10 +76,20 @@ const Login = observer(() => {
         <TextField fullWidth label="Username" margin="normal" value={username} onChange={e => setUsername(e.target.value)} />
         <TextField fullWidth type="password" label="Password" margin="normal" value={password} onChange={e => setPassword(e.target.value)} />
         
-        {/* If you want an Email field for registration, uncomment this: */}
-        {/* {isRegisterMode && (
-             <TextField fullWidth label="Email" margin="normal" value={email} onChange={e => setEmail(e.target.value)} />
-        )} */}
+        {/* --- Role Selection (Only visible in Register Mode) --- */}
+        {isRegisterMode && (
+             <TextField 
+                select 
+                fullWidth 
+                label="Select Role" 
+                margin="normal" 
+                value={role} 
+                onChange={e => setRole(e.target.value)}
+             >
+                <MenuItem value="Member">Member</MenuItem>
+                <MenuItem value="Admin">Admin</MenuItem>
+             </TextField>
+        )}
 
         <Button fullWidth variant="contained" size="large" sx={{ mt: 3, bgcolor: isRegisterMode ? "#ed6c02" : "#1976d2" }} onClick={handleAuth}>
             {isRegisterMode ? "Register" : "Sign In"}
@@ -168,13 +182,14 @@ const Dashboard = observer(() => {
         <Toolbar>
           <ComputerIcon sx={{ mr: 2 }} />
           <Typography variant="h6" sx={{ flexGrow: 1 }}>Smart Office Manager</Typography>
-          <Typography sx={{ mr: 2 }}>Hello, {authStore.user?.unique_name}</Typography>
+          <Typography sx={{ mr: 2 }}>Hello, {authStore.user?.unique_name} ({authStore.user?.role})</Typography>
           <IconButton color="inherit" onClick={authStore.logout}><LogoutIcon /></IconButton>
         </Toolbar>
       </AppBar>
 
       <Container maxWidth={false} sx={{ mt: 4, pb: 4, width: "95%" }}>
         
+        {/* Only Admin sees the Add Asset form */}
         {authStore.isAdmin && (
           <Paper sx={{ p: 3, mb: 4, borderRadius: 2, borderLeft: '6px solid #1976d2' }}>
             <Box display="flex" alignItems="center" mb={2}>
