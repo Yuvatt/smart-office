@@ -11,9 +11,10 @@ namespace ResourceService.Services
         public AssetService(IConfiguration config)
         {
             // Connect to MongoDB
-            var mongoClient = new MongoClient(config.GetConnectionString("MongoDbConnection"));
+            var mongoDbConnectionString = config.GetConnectionString("MongoDb"); 
+            var mongoClient = new MongoClient(mongoDbConnectionString);
             var mongoDatabase = mongoClient.GetDatabase("SmartOfficeDb");
-
+            
             // Get access to the "Assets" table (collection)
             _assetsCollection = mongoDatabase.GetCollection<Asset>("Assets");
         }
@@ -25,5 +26,12 @@ namespace ResourceService.Services
         // Create a new asset
         public async Task CreateAsync(Asset newAsset) =>
             await _assetsCollection.InsertOneAsync(newAsset);
+        
+        /*  It returns true if such an asset exists, and false otherwise.
+        */
+        public async Task<bool> AssetExistsAsync(string name, string type, string? excludeId = null)
+        {
+            return await _assetsCollection.Find(x => x.Name == name && x.Type == type).AnyAsync();
+        }
     }
 }

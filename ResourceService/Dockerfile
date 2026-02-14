@@ -9,7 +9,6 @@ RUN dotnet publish -c Release -o out /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
 WORKDIR /app
-# כאן אין צורך ב-icu-libs כי זה מונגו, אבל לא מזיק
 COPY --from=build /app/out .
 
 EXPOSE 8080

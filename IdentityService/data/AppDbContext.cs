@@ -3,13 +3,16 @@ using IdentityService.Models;
 
 namespace IdentityService.Data
 {
+    /* 
+    this class is responsible for managing the database connection
+    and providing access to the User entities.
+    */
+    
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-
-        // This property represents the "Users" table in our database
         public DbSet<User> Users { get; set; }
     }
 }

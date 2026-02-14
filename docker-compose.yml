@@ -1,51 +1,52 @@
 version: '3.8'
 
-services:
-  sql-db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sql-identity-db
-    platform: linux/amd64  # חובה! נשאר רק כאן
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong!Pass123
-    ports:
-      - "1433:1433"
+services: 
 
   mongo-db:
     image: mongo:latest
     container_name: mongo-resource-db
     ports:
       - "27017:27017"
-
-  identity-service:
-    build:
-      context: ./IdentityService
-    container_name: identity-service
-    # מחקנו את ה-platform - אלפיין יסתדר לבד
-    ports:
-      - "5284:8080"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=sql-db;Database=IdentityDb;User Id=sa;Password=YourStrong!Pass123;TrustServerCertificate=True;
-      - Jwt__Key=YourSuperSecretKeyHere1234567890!
-      - Jwt__Issuer=IdentityService
-      - Jwt__Audience=SmartOffice
-    depends_on:
-      - sql-db
+      - ConnectionStrings__MongoDb=mongodb://mongodb:27017
+  
+  sql-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql-identity-db
+    platform: linux/amd64  
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=secretPassword!123456
+    ports:
+      - "1433:1433"
 
   resource-service:
     build:
       context: ./ResourceService
     container_name: resource-service
-    # מחקנו את ה-platform
     ports:
       - "5018:8080"
     environment:
       - ConnectionStrings__MongoDb=mongodb://mongo-db:27017
-      - Jwt__Key=YourSuperSecretKeyHere1234567890!
+      - Jwt__Key=abcdefghijklmnopqrstuvwxyz1234567890
     depends_on:
       - mongo-db
 
-  ffrontend:
+  identity-service:
+    build:
+      context: ./IdentityService
+    container_name: identity-service
+    ports:
+      - "5284:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sql-db;Database=IdentityDb;User Id=sa;Password=secretPassword!123456;TrustServerCertificate=True;
+      - Jwt__Key=abcdefghijklmnopqrstuvwxyz1234567890
+      - Jwt__Issuer=IdentityService
+      - Jwt__Audience=SmartOffice
+    depends_on:
+      - sql-db
+
+  frontend:
     build:
       context: ./frontend
     container_name: smart-office-ui

@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+/*
+This is the entry point of the ResourceService application.
+    It sets up the web application, configures services, and defines middleware.
+*/
 
 var builder = WebApplication.CreateBuilder(args);
-
-// --- 1. Add Services ---
 
 builder.Services.AddCors(options =>
 {
@@ -14,21 +16,19 @@ builder.Services.AddCors(options =>
         builder =>
         {
             builder
-                .WithOrigins("http://localhost:5173", "http://localhost:3000") // הוספנו את 3000
+                .WithOrigins("http://localhost:5173", "http://localhost:3000") 
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
         });
 });
 
-// Register the AssetService (Dependency Injection)
 builder.Services.AddSingleton<AssetService>();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 
-
+/*
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ResourceService", Version = "v1" });
@@ -59,10 +59,10 @@ builder.Services.AddSwaggerGen(c =>
             new List<string>()
         }
     });
-});
+}); */
 
 
-// Configure JWT Authentication (Must match the IdentityService settings!)
+// Configure JWT Authentication 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -70,26 +70,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
-            ValidateIssuer = false, // Must match IdentityService
-            ValidateAudience = false // Must match IdentityService
+            ValidateIssuer = false, 
+            ValidateAudience = false 
         };
     });
 
 var app = builder.Build();
 app.UseCors("AllowAll");
 
-// --- 2. Configure Pipeline ---
-
+/*
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+*/
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // Verify "Who are you?"
-app.UseAuthorization();  // Verify "Are you allowed here?"
+app.UseAuthentication(); 
+app.UseAuthorization();  
 
 app.MapControllers();
 

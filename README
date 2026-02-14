@@ -1,0 +1,5 @@
+to run docker nwtwork 
+    docker build
+
+to run one of the server    
+    dotnet run (in the directory)
