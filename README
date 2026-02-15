@@ -1,5 +1,31 @@
-to run docker nwtwork 
-    docker build
+### How to Execute
+The entire stack (Identity Service, Resource Service, Database, Frontend) is containerized.
 
-to run one of the server    
-    dotnet run (in the directory)
+**Build and Run:**
+    Run the following command in the root directory:
+    ```bash
+    docker-compose up --build
+    ```
+    Go to `http://localhost:3000` in your browser.
+
+
+### Test the Microservers Locally
+1.  Open `IdentityService/Program.cs` and 
+    `ResourceService/Program.cs`.
+    Uncomment the lines of the development 
+2.  Open your terminal.
+    Navigate to the root directory of the project:   
+    cd smart-office
+3.  Build and run the containers:
+    dotnet run
+
+### Tooling Disclosure
+1.  Artificial Intelligence (AI)
+    Google Gemini : Used for generating basic setup code (Docker/Vite), for proper syntax usage syntax porp and for explaining error messages.    
+
+2.  Official Documentation & References
+    * Microsoft Learn (.NET Documentation): Referenced for ASP.NET Core Web API setup, Entity Framework Core configuration, and JWT authentication implementation.
+    * Database Documentation (SQL & MongoDB): Used for verification of SQL syntax and MongoDB driver usage in .NET.
+    * React & Material UI (MUI) Docs: Referenced for component usage (Table, Dialog, TextField) and hook patterns.
+
+3. Youtube (Video Tutorials): Used for visual explanations of Docker Networking and Microservices Architecture to better understand how the containers communicate with each other.
