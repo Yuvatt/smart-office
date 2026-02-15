@@ -9,8 +9,6 @@ import {
 import ComputerIcon from '@mui/icons-material/Computer';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
-import ChairIcon from '@mui/icons-material/Chair';
-import KitchenIcon from '@mui/icons-material/Kitchen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit'; 
 import { authStore } from "./authStore";
@@ -83,13 +81,6 @@ const Dashboard = observer(() => {
              alert("Error updating asset.");
           }
       }
-  };
-
-  const getIcon = (type: string) => {
-    const t = type.toLowerCase();
-    if (t.includes("laptop") || t.includes("pc")) return <ComputerIcon color="primary"/>;
-    if (t.includes("chair") || t.includes("desk")) return <ChairIcon color="secondary"/>;
-    return <KitchenIcon color="action"/>;
   };
 
   /*----------------------UI--------------------------------------- */

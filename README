@@ -28,4 +28,4 @@ The entire stack (Identity Service, Resource Service, Database, Frontend) is con
     * Database Documentation (SQL & MongoDB): Used for verification of SQL syntax and MongoDB driver usage in .NET.
     * React & Material UI (MUI) Docs: Referenced for component usage (Table, Dialog, TextField) and hook patterns.
 
-3. Youtube (Video Tutorials): Used for visual explanations of Docker Networking and Microservices Architecture to better understand how the containers communicate with each other.
+3.  Youtube (Video Tutorials): Used for visual      explanations of Docker Networking and Microservices     Architecture to better understand how the containers    communicate with each other.
